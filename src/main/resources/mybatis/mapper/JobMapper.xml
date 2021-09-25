@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.icss.hr.job.dao.JobMapper" >
+    <resultMap id="BaseResultMap" type="com.icss.hr.job.pojo.Job" >
+        <id column="job_id" property="jobId" jdbcType="INTEGER" />
+        <result column="job_name" property="jobName" jdbcType="VARCHAR" />
+        <result column="job_min_sal" property="jobMinSal" jdbcType="INTEGER" />
+        <result column="job_max_sal" property="jobMaxSal" jdbcType="INTEGER" />
+    </resultMap>
+    <insert id="insert">
+    insert into  JOB(JOB_NAME,JOB_MIN_SAL,JOB_MAX_SAL)
+    VALUES (#{jobName},#{jobMinSal},#{jobMaxSal})
+  </insert>
+    <update id="update">
+        UPDATE  JOB
+        <set>
+            <if test="jobName != null and jobName!=''">
+                JOB_NAME=#{jobName},
+            </if>
+            <if test="jobMaxSal != null and jobMaxSal!=0">
+                JOB_MIN_SAL=#{jobMinSal},
+            </if>
+            <if test="jobMaxSal != null and jobMaxSal!=0">
+                JOB_MAX_SAL=#{jobMaxSal}
+            </if>
+            WHERE JOB_ID=#{jobId}
+        </set>
+    </update>
+    <delete id="delete">
+    delete from job
+    where JOB_ID=#{jobId}
+
+  </delete>
+    <select id="queryJob" resultMap="BaseResultMap">
+        select job_id,job_name,job_max_sal,job_min_sal from job
+        <where>
+            <if test="jobId!=null and jobId!=0">
+                job_ID=#{jobId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

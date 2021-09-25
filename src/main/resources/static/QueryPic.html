@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="js/bootstrap/css/bootstrap.css">
+    <style>
+        .img-list img {
+            border: none;
+            width: 200px;
+        }
+
+        .img-list .item {
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: 10px;
+            background-color: #eee;
+            margin: 5px;
+        }
+
+        .img-list .item p {
+            padding-top: 5px;
+            font-size: 12px;
+            text-align: center;
+            color: #333;
+            width: 200px;
+        }
+
+        .item .del-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: none;
+        }
+
+        .item:hover .del-btn {
+            display: block;
+        }
+
+        .item .download-btn {
+            position: absolute;
+            top: 10px;
+            left: 47px;
+            display: none;
+        }
+
+        .item:hover .download-btn {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <ol class="breadcrumb">
+        <li><a href="#">人力资源管理系统</a></li>
+        <li><a href="#">图片管理</a></li>
+        <li>图片展示</li>
+    </ol>
+    <h2 class="page-header">图片展示列表</h2>
+
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-8">
+            <a href="javascript:;" id="addBtn" class="btn btn-success btn-block">添加图片</a>
+        </div>
+    </div>
+    <!-- 瀑布流开始 -->
+    <div class="row img-list">
+        <!-- <div class="item">
+            <a href="#">
+                <img src="images/liudehua.jpg">
+            </a>
+            <p>图片info</p>
+            <a href="#" class="btn btn-danger btn-xs del-btn">删除</a>
+            <a href="#" class="btn btn-info btn-xs download-btn">下载</a>
+        </div> -->
+    </div>
+
+</div>
+
+
+<script src="js/jquery-1.11.2.min.js"></script>
+<script src="js/bootstrap/js/bootstrap.js"></script>
+<script src="js/layer/layer.js"></script>
+<script src="js/globle.js"></script>
+<script src="js/jquery.masonry.js"></script>
+<script>
+    //文档就绪事件
+    $(function () {
+        let $container = $('.img-list');
+        // $container.imagesLoaded(function(){
+        // 		        $container.masonry({
+        // 		            itemSelector: '.item',
+        // 		            columnWidth: 5 //每两列之间的间隙为5像素
+        // 		        });
+        // 		    });
+        //请求图片列表
+        $.getJSON(baseUrl + 'pic/query', function (data) {
+            let html;
+            $.each(data, function (index, item) {
+                html += `
+						<div class="item">
+							<a href="#" title="${item.picAuthor},${item.picDatetime}">
+								<img src="${baseUrl}pic/get?picId=${item.picId}">
+							</a>
+							<p>${item.picInfo ? item.picInfo : '无信息'}</p>
+							<a href="#" data-id="${item.picId}" class="btn btn-danger btn-xs del-btn">删除</a>
+							<a href="${baseUrl}pic/download?picId=${item.picId}" data-id="${item.picId}" class="btn btn-info btn-xs download-btn">下载</a>
+						</div>
+						`;
+            });
+            //
+            $container.append(html);
+            $container.imagesLoaded(function () {
+                $container.masonry({
+                    itemSelector: '.item',
+                    columnWidth: 5 //每两列之间的间隙为5像素
+                });
+            });
+        });
+
+        $('#addBtn').click(function () {
+            layer.open({
+                title: '添加图片',
+                type: 2,
+                area: ['700px', '600px'],
+                content: 'AddPic.html'
+            });
+        });
+
+        // $container.on('click','.download-btn',function(){
+        // 	let picId = this.getAttribute('data-id');
+
+        // 	$.get(baseUrl + 'DownloadPicServlet',{picId},function(data){
+        // 		alert('1');
+        // 	})
+        // 	.error(function(){
+        // 		alert(2);
+        // 	})
+        // })
+    });
+</script>
+</body>
+</html>

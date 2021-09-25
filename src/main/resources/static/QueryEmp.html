@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="js/bootstrap/css/bootstrap.css">
+    <style>
+        .pagination {
+            margin-top: 0 !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <ol class="breadcrumb">
+        <li><a href="#">人力资源管理系统</a></li>
+        <li><a href="#">员工管理</a></li>
+        <li>查询员工</li>
+    </ol>
+    <h2 class="page-header">员工列表</h2>
+
+    <table id="dataTable" class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>员工编号</th>
+            <th>员工姓名</th>
+            <th>邮箱</th>
+            <th>电话</th>
+            <th>入职日期</th>
+            <th>部门</th>
+            <th>职务</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <!-- 分页工具条 -->
+    <div class="row">
+        <div class="col-sm-4">
+            <div id="pageInfo">共xx条数据 xx/xx页</div>
+        </div>
+        <div class="col-sm-8">
+            <nav id="pageNav">
+                <ul class="pagination pagination-sm pull-right">
+                    <li><a href="javascript:;" id="firstBtn">首页</a></li>
+                    <li><a href="javascript:;" id="prevBtn">上页</a></li>
+                    <!-- 页码按钮 -->
+                    <li><a href="javascript:;" id="nextBtn">下页</a></li>
+                    <li><a href="javascript:;" id="lastBtn">末页</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-offset-8 col-sm-4">
+            <a href="AddEmp.html" class="btn btn-success btn-block">增加员工</a>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery-1.11.2.min.js"></script>
+<script src="js/bootstrap/js/bootstrap.js"></script>
+<script src="js/layer/layer.js"></script>
+<script src="js/globle.js"></script>
+<script>
+    //文档就绪事件
+    $(function () {
+
+        //分页变量
+        let recordCount;
+        let pageSize = 7;
+        let pageNum = getParam('pageNum') ? getParam('pageNum') : 1;
+        let pageCount;
+
+        //请求数据函数
+        function getData() {
+
+            //发出ajax请求
+            $.getJSON(baseUrl + 'emp/querybypage', {pageSize, pageNum},
+                function (data) {
+                    let {pager, list} = data;
+                    let htmlStr = '';
+                    let dataTable = $('#dataTable tbody');
+                    //清空上次数据
+                    dataTable.empty();
+                    // 遍历list 渲染到页面中
+                    $.each(list, function (index, item) {
+                        htmlStr += `
+									<tr>
+										<td>${item.empId}</td>
+										<td>${item.empName}</td>
+										<td>${item.empEmail}</td>
+										<td>${item.empPhone}</td>
+										<td>${item.empHiredate}</td>
+										<td>${item.dept ? item.dept.deptName : '无'}</td>
+										<td>${item.job ? item.job.jobName : '无'}</td>
+										<td>
+											<button data-id="${item.empId}" type="button" class="btn btn-primary btn-sm update-btn">
+												<b class="glyphicon glyphicon-pencil"></b>修改
+											</button>
+											
+											<button data-id="${item.empId}" type="button" class="btn btn-danger btn-sm del-btn">
+												<b class="glyphicon glyphicon-trash"></b>删除
+											</button>
+										</td>
+									</tr>`;
+                    });
+                    //将数据渲染到页面
+                    dataTable.append(htmlStr);
+                    //渲染分页信息
+                    recordCount = pager.recordCount;
+                    pageSize = pager.pageSize;
+                    pageNum = pager.pageNum;
+                    pageCount = pager.pageCount;
+
+                    $('#pageInfo').text(`共${recordCount}条数据，${pageNum}/${pageCount}页`);
+                    //动态根据当前页码 调整页码按钮状态
+                    if (pageNum <= 1) {
+                        $('#firstBtn').addClass('btn disabled');
+                        $('#prevBtn').addClass('btn disabled');
+                    } else {
+                        $('#firstBtn').removeClass('btn disabled');
+                        $('#prevBtn').removeClass('btn disabled');
+                    }
+
+                    if (pageNum >= pageCount) {
+                        $('#lastBtn').addClass('btn disabled');
+                        $('#nextBtn').addClass('btn disabled');
+                    } else {
+                        $('#lastBtn').removeClass('btn disabled');
+                        $('#nextBtn').removeClass('btn disabled');
+                    }
+                    //清除上一次多余的页码按钮
+                    $('.pagenum-btn').remove();
+                    //页码按钮计算
+                    let start = pageNum - 2;
+                    if (pageNum <= 3) {
+                        start = 1;
+                    }
+                    if (pageNum >= pageCount - 3) {
+                        start = pageCount - 4;
+                    }
+                    let end = start + 4;
+
+                    if (pageCount <= 5) {
+                        start = 1;
+                        end = pageCount;
+                    }
+                    //  动态显示页码按钮
+                    for (var i = start; i <= end; i++) {
+                        let html = $(`<li><a href="javascript:;" class="pagenum-btn">${i}</a></li>`);
+
+                        $('#nextBtn').parent().before(html);
+
+                        if (i == pageNum) {
+                            html.addClass('active');
+                        }
+                    }
+                })
+                .error(function (xhr, status, text) {
+                    layer.msg('请求失败');
+                });
+        }
+
+        //请求首页数据
+        getData();
+
+        // 首页 上页 下页 末页 单击事件 （校正数据在ajax回调函数中)
+        $('#firstBtn').click(function () {
+            pageNum = 1;
+            getData();
+        });
+        $('#prevBtn').click(function () {
+            pageNum--;
+            getData();
+        });
+        $('#nextBtn').click(function () {
+            pageNum++;
+            getData();
+        });
+        $('#lastBtn').click(function () {
+            pageNum = pageCount;
+            getData();
+        });
+        //通过事件委托 处理页码按钮单击事件
+        $('#pageNav').on('click', '.pagenum-btn', function () {
+            pageNum = parseInt($(this).text());
+            getData();
+        });
+        // 删除按钮的事件委托
+        $('#dataTable').on('click', '.del-btn', function () {
+            let flag = confirm('确定要删除此员工吗？');
+            if (!flag) return;
+
+            let empId = this.getAttribute('data-id');
+            $.get(baseUrl + 'emp/delete', {empId}, () => {
+                layer.msg('员工删除成功！');
+                //前端删除
+                $(this).parents('tr').remove();
+            })
+                .error(function (xhr, status, text) {
+                    layer.msg('请求失败,' + text);
+                });
+        });
+        // 修改按钮事件委托
+        $('#dataTable').on('click', '.update-btn', function () {
+            //从事件源对象中 获得自定义属性 data-id
+            let empId = this.getAttribute('data-id');
+            // 弹出模态层
+            layer.open({
+                title: '修改员工',
+                type: 2,
+                area: ['700px', '600px'],
+                content: 'UpdateEmp.html?empId=' + empId
+            });
+
+        });
+
+    });
+</script>
+</body>
+</html>

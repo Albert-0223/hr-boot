@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="js/bootstrap/css/bootstrap.css">
+	</head>
+	<body>
+		<div class="container">
+			<ol class="breadcrumb">
+				<li><a href="#">人力资源管理系统</a></li>
+				<li><a href="#">职务管理</a></li>
+				<li>查询职务</li>
+			</ol>
+			<h2 class="page-header">职务列表</h2>
+			
+			<table id="dataTable" class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th>职务编号</th>
+						<th>职务名称</th>
+						<th>职务最低工资</th>
+						<th>职务最高工资</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- 假数据 -->
+<!-- <tr>
+	<td>10</td>
+	<td>技术部</td>
+	<td>上海</td>
+	<td>
+		<button type="button" class="btn btn-primary btn-sm update-btn">
+			<b class="glyphicon glyphicon-pencil"></b>修改
+		</button>
+		
+		<button type="button" class="btn btn-danger btn-sm del-btn">
+			<b class="glyphicon glyphicon-trash"></b>删除
+		</button>
+		
+	</td>
+</tr> -->
+				</tbody>
+			</table>
+			
+			<div class="row">
+				<div class="col-sm-offset-8 col-sm-4">
+					<a href="AddJob.html" class="btn btn-success btn-block">增加新职务</a>
+				</div>
+			</div>
+			
+		</div>
+		
+		
+		<script src="js/jquery-1.11.2.min.js"></script>
+		<script src="192.168.38.255:7777/hr/js/xxx.js"></script>
+		<script src="js/bootstrap/js/bootstrap.js"></script>
+		<script src="js/layer/layer.js"></script>
+		<script src="js/globle.js"></script>
+		<script>
+			//文档就绪事件
+			$(function(){
+				// 打开页面立刻请求职务数据
+				$.getJSON(baseUrl + 'job/query',function(data){
+					
+					//数据表格对象
+					let dataTable = $('#dataTable tbody');
+					// 遍历数据集合
+					$.each(data ,function(index,item){
+						//html字符串
+						let htmlStr = `
+							<tr>
+								<td>${item.jobId}</td>
+								<td>${item.jobName}</td>
+								<td>${item.jobMinSal}</td>
+								<td>${item.jobMaxSal}</td>
+								<td>
+									<button type="button" data-id="${item.jobId}" class="btn btn-primary btn-sm update-btn">
+										<b class="glyphicon glyphicon-pencil"></b>修改
+									</button>
+									
+									<button type="button" data-id="${item.jobId}" class="btn btn-danger btn-sm del-btn">
+										<b class="glyphicon glyphicon-trash"></b>删除
+									</button>
+									
+								</td>
+							</tr>`;
+							dataTable.append(htmlStr);//将数据渲染到页面
+					});
+				})
+				.error(function(){
+					layer.msg('请求失败');
+				});
+				//删除按钮事件委托
+				$('#dataTable').on('click','.del-btn',function(){
+					//从事件源对象中 获得自定义属性 data-id
+					let jobId = this.getAttribute('data-id');
+					//弹出确定取消框
+					// layer.confirm(`确定到删除${jobId}号职务吗？`,{
+					// 	btn:['确定删除','取消'],
+					// 	},
+					// 	()=>{
+					// 		//用户点击确定删除 发出ajax请求 删除职务
+					// 		$.get(baseUrl + 'DeletejobServlet',{jobId},
+					// 		()=>{
+					// 			layer.closeAll();
+					// 			//前端删除数据
+					// 			$(this).parents('tr').remove();
+							
+					// 		}).error(function(){});
+					// 	},	
+					// 	function(){
+						
+					// });
+					let flag = window.confirm(`确定到删除${jobId}号职务吗？`);
+					if(flag){
+						//用户点击确定删除 发出ajax请求 删除职务
+						$.get(baseUrl + 'job/delete',{jobId},
+						()=>{
+							layer.closeAll();
+							//前端删除数据
+							$(this).parents('tr').remove();
+						
+						}).error(function(){});
+					}
+				});
+				// 修改按钮事件委托
+				$('#dataTable').on('click','.update-btn',function(){
+					//从事件源对象中 获得自定义属性 data-id
+					let jobId = this.getAttribute('data-id');
+					
+					location.href = 'UpdateJob.html?jobId=' + jobId;
+				});
+			});
+		</script>
+	</body>
+</html>

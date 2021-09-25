@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="js/bootstrap/css/bootstrap.css">
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			body{
+				background-color: #333333; 
+			}
+			.user-head{
+				width: 150px;
+				height: 150px;
+				margin: 20px auto;
+				border-radius: 50%;
+				border:5px solid white;
+				overflow: hidden;
+			}
+			.user-head img{
+				width: 100%;
+				display: block;
+			}
+			.nav-left .list-group-item{
+				background-color: transparent;
+				border: none;
+				border-bottom: 1px solid #444444;
+				text-align: center;
+				font-size: 16px;
+				color: #eeeeee;
+				letter-spacing: 1px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container-fluid">
+			<!-- 头像区 -->
+			<div class="row user-head">
+				<a href="UpdateHead.html" title="点击修改用户头像" target="content">
+					<img src="" id="empPic" class="img-responsive">
+				</a>
+			</div>
+			<!-- 欢迎语句 -->
+			<div class="row">
+				<p style="text-align: center;color: #eeeeee;">
+					欢迎你,<span id="empLoginName"></span>
+				</p>
+			</div>
+			<!-- 导航菜单列表 -->
+			<div class="row nav-left">
+				<div class="list-group">
+					<!-- a.list-group-item[target=content]*8 -->
+	<a href="QueryDept.html" class="list-group-item" target="content">部门管理</a>
+	<a href="QueryJob.html" class="list-group-item" target="content">职务管理</a>
+	<a href="QueryEmp.html" class="list-group-item" target="content">员工管理</a>
+	<a href="#" class="list-group-item" target="content">数据分析</a>
+	<a href="#" class="list-group-item" target="content">修改密码</a>
+	<a href="#" class="list-group-item" target="content">数据检索</a>
+	<a href="QueryPic.html" class="list-group-item" target="content">公司图库</a>
+	<a href="LogoutServlet" class="list-group-item" target="_parent">退出登录</a>
+				</div>
+			</div>
+			<script src="js/jquery-1.11.2.min.js"></script>
+			<script src="js/bootstrap/js/bootstrap.js"></script>
+			<script src="js/layer/layer.js"></script>
+			<script src="js/globle.js"></script>
+			<script>
+				$.get(baseUrl+'pic/get',function(data){
+					if(data != 'null' && data != ''){
+						$('#empPic').attr('src',data);
+						//头像上传成功之后 将头像信息存储到本地
+						localStorage.setItem('headImg',data);
+					}else{
+						$('#empPic').attr('src','images/liudehua.jpg');
+						
+						localStorage.setItem('headImg','');
+					}
+				})
+				.error(function (){
+					$('#empPic').attr('src','images/liudehua.jpg');
+				})
+			</script>
+	</body>
+</html>
